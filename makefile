@@ -1,5 +1,5 @@
  # Собираем бинарный файл
- .PHONY: buil
+ .PHONY: build
  build: 
 	go build -v ./cmd/apiServer
 
