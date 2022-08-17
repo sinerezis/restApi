@@ -1,6 +1,10 @@
 package sqlstore
 
-import "resApi/internal/app/model"
+import (
+	"database/sql"
+	"resApi/internal/app/model"
+	"resApi/internal/app/store"
+)
 
 // Репозиторий
 type UserRepository struct {
@@ -9,6 +13,10 @@ type UserRepository struct {
 
 // Создание нового пользователя
 func (r *UserRepository) Create(u *model.User) error {
+	if err := u.Validate(); err != nil {
+		return err
+
+	}
 	if err := u.BeforeCreate(); err != nil {
 		return err
 	}
@@ -21,7 +29,7 @@ func (r *UserRepository) Create(u *model.User) error {
 }
 
 // Поиск пользователя по email
-func (r *UserRepository) FindByEmaiL(email string) (*model.User, error) {
+func (r *UserRepository) FindByEmail(email string) (*model.User, error) {
 	u := model.User{
 		Email: email,
 	}
@@ -33,6 +41,11 @@ func (r *UserRepository) FindByEmaiL(email string) (*model.User, error) {
 		&u.Email,
 		&u.EncryptedPassword,
 	); err != nil {
+
+		if err == sql.ErrNoRows {
+			return nil, store.ErrRecordNotFound
+
+		}
 		return nil, err
 	}
 
